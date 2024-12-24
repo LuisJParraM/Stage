@@ -2,6 +2,22 @@
 
 This repository documents the development and functionality of a Microsoft Access-based tool to automate shipment form generation. The tool uses VBA and SQL for seamless data handling and user interaction. Below are detailed sections explaining the process, functionality, and code implementation.
 
+# Table of Contents
+
+- [Automated Form Generation Project Documentation](#automated-form-generation-project-documentation)
+  - [Project Overview](#project-overview)
+  - [Main Components](#main-components)
+  - [Data Import and Cleanup](#data-import-and-cleanup)
+    - [Data Import (VBA Code)](#data-import-vba-code)
+    - [Data Cleanup (SQL Queries)](#data-cleanup-sql-queries)
+  - [Form 1 (Formulaire1): Navigation Menu](#form-1-formulaire1-navigation-menu)
+  - [Form 2 (Formulaire2): Provides detailed functionalities for data input and export](#form-2-formulaire2-provides-detailed-functionalities-for-data-input-and-export)
+    - [1. Managing Internal Requesters](#1-managing-internal-requesters)
+    - [2. Managing Recipients](#2-managing-recipients)
+    - [3. Managing References](#3-managing-references)
+    - [4. Exporting Data to Excel](#4-exporting-data-to-excel)
+    - [5. Visuals for Form 1 and Form 2](#5-visuals-for-form-1-and-form-2)
+
 ## Project Overview
 
 The project aims to:
