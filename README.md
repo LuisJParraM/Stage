@@ -394,3 +394,194 @@ End Sub
 
   * Ensures all mandatory details are entered before adding to the database.
 
+### 3. Managing References
+
+#### Code: Selecting a Reference
+
+```vbnet
+Private Sub Modifiable_reference_Click()
+    Dim reference As String
+    Dim id_reference As Variant
+
+    If IsNull(Me.Modifiable_reference.Value) Then
+        Me.étiquette_liste_reference.Caption = ""
+    Else
+        Me.étiquette_liste_reference.Caption = Me.Modifiable_reference.Value
+    End If
+
+    reference = Me.étiquette_liste_reference.Caption
+    Me.Modifiable_liste_designation.RowSource = "SELECT Désignation FROM Reference WHERE Référence = '" & reference & "';"
+    Me.Modifiable_liste_designation.Requery
+End Sub
+```
+**Explanation:**
+
+   * This subroutine triggers when a reference is selected from the dropdown list.
+
+   * Updates the label and dynamically populates the associated designation list.
+
+#### Code: Adding a New Reference
+
+```vbnet
+Private Sub Modifiable_liste_designation_Click()
+    Dim rs As DAO.Recordset
+    Dim destinataire As String
+    Dim reference As String
+    Dim designation As String
+    Dim userResponse As Integer
+    Dim sqlInsert As String
+
+    If IsNull(Me.Modifiable_liste_designation.Value) Then
+        Me.étiquette_liste_designation.Caption = ""
+    Else
+        Me.étiquette_liste_designation.Caption = Me.Modifiable_liste_designation.Value
+    End If
+
+    destinataire = Me.étiquette_destinataire_1.Caption
+    reference = Me.étiquette_liste_reference.Caption
+    designation = Me.étiquette_liste_designation.Caption
+
+    Set rs = CurrentDb.OpenRecordset("SELECT Référence FROM Reference WHERE Référence = '" & reference & "';")
+
+    If rs.EOF Then
+        userResponse = MsgBox("La référence '" & reference & "' n'existe pas dans la base de données. Voulez-vous l'ajouter ?", vbYesNo + vbQuestion, "Nouvelle Référence")
+
+        If userResponse = vbYes Then
+            sqlInsert = "INSERT INTO Reference (Destinataire, Référence, Désignation) VALUES ('" & destinataire & "', '" & reference & "', '" & designation & "');"
+            CurrentDb.Execute sqlInsert, dbFailOnError
+            MsgBox "La référence a été ajoutée avec succès.", vbInformation, "Référence Ajoutée"
+        Else
+            MsgBox "La référence n'a pas été ajoutée.", vbExclamation, "Action Annulée"
+            Me.Modifiable_reference.Value = Null
+            Me.étiquette_liste_reference.Caption = ""
+            rs.Close
+            Set rs = Nothing
+            Exit Sub
+        End If
+    End If
+End Sub
+```
+**Explanation:**
+
+   * This subroutine triggers when a user selects a designation or attempts to add a new reference.
+
+   * Prompts the user to confirm the addition of a new reference and dynamically inserts it into the Reference table.
+
+   * Ensures all necessary fields are correctly populated before committing to the database.
+ 
+ ### 4. Exporting Data to Excel
+
+ #### Code: Exporting to Excel
+
+ ```vbnet
+Private Sub Transfer_Click()
+    Dim xlApp As Object
+    Dim xlBook As Object
+    Dim xlSheet As Object
+    Dim rutaExcel As String
+    Dim name As Variant
+
+    rootExcel = "K:\A_27_TS\A_2704_TSM\A_270402_Maintenance\Formulaire d'expédition\Formulaire Standar\Modèle formulaire expéditions 2024.xlsx"
+
+    On Error Resume Next
+    Set xlApp = CreateObject("Excel.Application")
+    On Error GoTo 0
+
+    If xlApp Is Nothing Then
+        MsgBox "No se pudo iniciar Excel. Asegúrate de que Excel esté instalado.", vbCritical
+        Exit Sub
+    End If
+
+    Set xlBook = xlApp.Workbooks.Open(rootExcel)
+    Set xlSheet = xlBook.Sheets(1)
+    Dim Value(1 To 23) As Variant
+
+    ' Collect form data to export
+    Value(1) = Me.étiquette_demandeur_interne_1.Caption
+    Value(2) = Me.étiquette_demandeur_interne_2.Caption
+    Value(3) = Me.étiquette_demandeur_interne_3.Caption
+    Value(4) = Me.étiquette_demandeur_interne_4.Caption
+    Value(5) = Me.étiquette_demandeur_interne_5.Caption
+
+    Value(6) = Me.étiquette_destinataire_1.Caption
+    Value(7) = Me.étiquette_destinataire_2.Caption
+    Value(8) = Me.étiquette_destinataire_3.Caption
+    Value(9) = Me.étiquette_destinataire_4.Caption
+    Value(10) = Me.étiquette_destinataire_5.Caption
+    Value(11) = Me.étiquette_destinataire_6.Caption
+    Value(12) = Me.étiquette_destinataire_7.Caption
+
+    Value(13) = Me.étiquette_liste_reference.Caption
+    Value(14) = Me.étiquette_liste_designation.Caption
+    Value(15) = Me.Marchandise_3.Value
+    Value(16) = Me.Marchandise_4.Value
+
+    Value(17) = Me.livraison_1.Value
+    Value(18) = Me.livraison_2.Value
+    Value(19) = Me.livraison_3.Value
+    Value(20) = Me.livraison_4.Value
+    Value(21) = Me.livraison_5.Value
+
+    Value(22) = Me.étiquette_date_de_livraison_1.Caption
+    Value(23) = Me.date_de_livraison_1.Value
+
+    ' Map data to Excel template
+    xlSheet.Range("B7").Value = Value(1)
+    xlSheet.Range("B8").Value = Value(2)
+    xlSheet.Range("B9").Value = Value(3)
+    xlSheet.Range("B10").Value = Value(4)
+    xlSheet.Range("B11").Value = Value(5)
+
+    xlSheet.Range("B13").Value = Value(6)
+    xlSheet.Range("B14").Value = Value(7)
+    xlSheet.Range("B15").Value = Value(8)
+    xlSheet.Range("B16").Value = Value(9)
+    xlSheet.Range("B17").Value = Value(10)
+    xlSheet.Range("B18").Value = Value(11)
+    xlSheet.Range("B19").Value = Value(12)
+
+    xlSheet.Range("B21").Value = Value(13)
+    xlSheet.Range("B22").Value = Value(14)
+    xlSheet.Range("B23").Value = Value(15)
+    xlSheet.Range("B24").Value = Value(16)
+
+    xlSheet.Range("B26").Value = Value(17)
+    xlSheet.Range("B27").Value = Value(18)
+    xlSheet.Range("B28").Value = Value(19)
+    xlSheet.Range("B29").Value = Value(20)
+    xlSheet.Range("B30").Value = Value(21)
+
+    xlSheet.Range("B34").Value = Value(22)
+    xlSheet.Range("B35").Value = Value(23)
+
+    ' Save the Excel file
+    name = Format(Date, "yyyymmdd") & "-Formulaire d'expedition-" & Value(6) & ".xlsx"
+    xlBook.SaveAs "K:\A_27_TS\A_2704_TSM\A_270402_Maintenance\Formulaire d'expédition\" & name
+    xlBook.Close False
+    xlApp.Quit
+
+    MsgBox "Données exportées avec succès vers Excel.", vbInformation
+
+    Set xlSheet = Nothing
+    Set xlBook = Nothing
+    Set xlApp = Nothing
+End Sub
+```
+**Explanation:**
+
+   * Gathers all data entered in Formulaire2 and maps it to a preformatted Excel template.
+
+   * Saves the file with a unique name based on the date and recipient.
+
+   * Ensures a clean workflow by releasing all Excel objects after use.
+
+### 5. Visuals for Form 1 and Form 2
+To better understand the implementation of this project, here are images of the two forms created:
+
+#### Form 1 (Menu):
+![Formulaire1](link_to_image_form1)
+
+#### Form 2 (Detailed Form):
+![Formulaire2](link_to_image_form2)
+
+### This documentation should serve as a reference for understanding the development and functionality of the tool. Further iterations can enhance usability and extend features based on operational needs.
